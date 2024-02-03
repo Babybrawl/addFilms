@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ajouter un film ou une série</title>
+</head>
+<body>
+  <div>
+    <h1>Ajouter un film ou une série</h1>
+    <form id="addMovieForm">
+      <label for="title">Titre :</label>
+      <input type="text" id="title" name="title" required>
+
+      <label for="image">Image :</label>
+      <input type="text" id="image" name="image" required>
+
+      <label for="link">Lien :</label>
+      <input type="text" id="link" name="link" required>
+
+      <label for="tag">Tag :</label>
+      <input type="text" id="tag" name="tag" required>
+
+      <label for="description">Description :</label>
+      <textarea id="description" name="description" required></textarea>
+
+      <label for="type">Type :</label>
+      <select id="type" name="type">
+        <option value="film">Film</option>
+        <option value="serie">Série</option>
+      </select>
+
+      <label for="episode">Épisode :</label>
+      <input type="number" id="episode" name="episode" min="1" value="1" style="display: none;"> <!-- Champ masqué initialement -->
+
+      <button type="button" onclick="addMovie()">Ajouter le film ou la série</button>
+    </form>
+
+    <script>
+        function addMovie() {
+          const title = document.getElementById('title').value;
+          const image = document.getElementById('image').value;
+          const link = document.getElementById('link').value;
+          const tag = document.getElementById('tag').value;
+          const description = document.getElementById('description').value;
+          const type = document.getElementById('type').value;
+          const episodeField = document.getElementById('episode');
+          const episode = episodeField.value;
+      
+          const movieData = {
+            title: title,
+            image: image,
+            link: link,
+            tag: tag,
+            description: description,
+            type: type,
+            episode: type === 'serie' ? episode : undefined,
+          };
+      
+          // Envoyer les données au serveur
+          fetch('/addMovie', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(movieData),
+          })
+          .then(response => response.json())
+          .then(data => {
+            alert("tout est bon");
+            document.getElementById("episode").style.display = "none";
+      
+            // Effacer le contenu des champs après avoir ajouté le film ou la série
+            document.getElementById('title').value = '';
+            document.getElementById('image').value = '';
+            document.getElementById('link').value = '';
+            document.getElementById('tag').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('type').value = 'film';
+            episodeField.value = '1'; // Mettez la valeur par défaut ou vide selon vos besoins
+          })
+          .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur s\'est produite lors de l\'ajout du film ou de la série.');
+          });
+      
+          // Masquer le champ d'épisode si le type est "Film"
+          episodeField.style.display = type === 'serie' ? 'block' : 'none';
+        }
+      
+        // Ajouter un écouteur d'événements pour afficher ou masquer le champ d'épisode en fonction du type sélectionné
+        document.getElementById('type').addEventListener('change', function() {
+          const episodeField = document.getElementById('episode');
+          if (this.value === 'serie') {
+            episodeField.style.display = 'block'; // Affiche le champ d'épisode
+          } else {
+            episodeField.style.display = 'none'; // Masque le champ d'épisode
+          }
+        });
+      </script>
+  </div>
+</body>
+</html>
